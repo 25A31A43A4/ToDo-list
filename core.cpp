@@ -1,0 +1,165 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+using namespace std;
+
+class Task {
+public:
+    string title;
+    bool completed;
+
+    void createTask() {
+        cin.ignore();
+
+        cout << "Enter Task: ";
+        getline(cin, title);
+
+        completed = false;
+    }
+
+    void displayTask(int index) {
+        cout << index + 1 << ". " << title;
+
+        if (completed)
+            cout << " [Done]";
+
+        cout << endl;
+    }
+};
+
+vector<Task> tasks;
+
+void saveToFile() {
+    ofstream file("tasks.txt");
+
+    for (auto &task : tasks) {
+        file << task.title << endl;
+        file << task.completed << endl;
+    }
+
+    file.close();
+}
+
+void loadFromFile() {
+    ifstream file("tasks.txt");
+
+    Task task;
+
+    while (getline(file, task.title)) {
+        file >> task.completed;
+        file.ignore();
+
+        tasks.push_back(task);
+    }
+
+    file.close();
+}
+
+void addTask() {
+    Task task;
+
+    task.createTask();
+
+    tasks.push_back(task);
+
+    saveToFile();
+
+    cout << "Task Added Successfully\n";
+}
+
+void viewTasks() {
+    if (tasks.empty()) {
+        cout << "No Tasks Available\n";
+        return;
+    }
+
+    for (int i = 0; i < tasks.size(); i++) {
+        tasks[i].displayTask(i);
+    }
+}
+
+void completeTask() {
+    int number;
+
+    viewTasks();
+
+    cout << "Enter Task Number: ";
+    cin >> number;
+
+    if (number > 0 && number <= tasks.size()) {
+        tasks[number - 1].completed = true;
+
+        saveToFile();
+
+        cout << "Task Marked Completed\n";
+    } else {
+        cout << "Invalid Task Number\n";
+    }
+}
+
+void deleteTask() {
+    int number;
+
+    viewTasks();
+
+    cout << "Enter Task Number: ";
+    cin >> number;
+
+    if (number > 0 && number <= tasks.size()) {
+        tasks.erase(tasks.begin() + number - 1);
+
+        saveToFile();
+
+        cout << "Task Deleted Successfully\n";
+    } else {
+        cout << "Invalid Task Number\n";
+    }
+}
+
+int main() {
+    loadFromFile();
+
+    int choice;
+
+    do {
+        cout << "\n===== TO DO LIST =====\n";
+        cout << "1. Add Task\n";
+        cout << "2. View Tasks\n";
+        cout << "3. Complete Task\n";
+        cout << "4. Delete Task\n";
+        cout << "5. Exit\n";
+        cout << "Enter Choice: ";
+
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                addTask();
+                break;
+
+            case 2:
+                viewTasks();
+                break;
+
+            case 3:
+                completeTask();
+                break;
+
+            case 4:
+                deleteTask();
+                break;
+
+            case 5:
+                cout << "Thank You\n";
+                break;
+
+            default:
+                cout << "Invalid Choice\n";
+        }
+
+    } while (choice != 5);
+
+    return 0;
+}
